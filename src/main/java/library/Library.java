@@ -79,6 +79,33 @@ public class Library {
         operationLog.printLog();
     }
 
+    // Новый метод: Получение статистики
+    public String getStatistics() {
+        int totalBooks = books.size();
+        int availableBooks = getAvailableBooks().size();
+        int borrowedBooks = totalBooks - availableBooks;
+        
+        // Расчет процентов
+        double availablePercentage = totalBooks > 0 ? 
+            (double) availableBooks / totalBooks * 100 : 0;
+        double borrowedPercentage = totalBooks > 0 ? 
+            (double) borrowedBooks / totalBooks * 100 : 0;
+        
+        return String.format(
+            "=== СТАТИСТИКА БИБЛИОТЕКИ ===\n" +
+            "Всего книг: %d\n" +
+            "Доступно: %d (%.1f%%)\n" +
+            "Выдано: %d (%.1f%%)",
+            totalBooks, availableBooks, availablePercentage, 
+            borrowedBooks, borrowedPercentage
+        );
+    }
+
+    // Дополнительный метод для вывода статистики (необязательно)
+    public void printStatistics() {
+        System.out.println(getStatistics());
+    }
+
     // ===== ВЛОЖЕННЫЙ СТАТИЧЕСКИЙ КЛАСС =====
     public static class OperationLog {
 
