@@ -16,22 +16,59 @@ public class Library {
         books.add(book);
         operationLog.addEntry(
                 OperationLog.OperationType.ADD_BOOK,
-                "Добавлена книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
+                "Добавлена книга: " + book.getTitle()
         );
     }
 
-    // Новый метод: Удаление книги по ID
     public boolean removeBook(int id) {
-        Book bookToRemove = findBookById(id);
-        if (bookToRemove != null) {
-            boolean removed = books.remove(bookToRemove);
+        Book book = findBookById(id);
+        if (book != null) {
+            boolean removed = books.remove(book);
             if (removed) {
                 operationLog.addEntry(
                         OperationLog.OperationType.REMOVE_BOOK,
-                        "Удалена книга: " + bookToRemove.getTitle() + " (ID: " + bookToRemove.getId() + ")"
+                        "Удалена книга: " + book.getTitle()
                 );
                 return true;
             }
+        }
+        return false;
+    }
+
+    // НОВЫЙ МЕТОД: Обновление информации о книге
+    public boolean updateBook(int id, Book newData) {
+        Book existingBook = findBookById(id);
+        if (existingBook != null) {
+            // Сохраняем старое название для лога
+            String oldTitle = existingBook.getTitle();
+            
+            // Обновляем информацию о книге
+            // В реальном приложении нужно было бы добавить сеттеры в класс Book
+            // или создать новый конструктор/метод для обновления
+            
+            // Поскольку у нас нет сеттеров в Book, я покажу альтернативный подход:
+            // Удаляем старую книгу и добавляем новую с тем же ID
+            books.remove(existingBook);
+            
+            // Создаем новую книгу с тем же ID и новыми данными
+            Book updatedBook = new Book(
+                id, // Сохраняем тот же ID
+                newData.getTitle(),
+                newData.getAuthor(),
+                newData.getYear(),
+                newData.getIsbn()
+            );
+            
+            // Устанавливаем статус доступности (если он был изменен)
+            updatedBook.setAvailable(existingBook.isAvailable());
+            
+            books.add(updatedBook);
+            
+            operationLog.addEntry(
+                    OperationLog.OperationType.UPDATE_BOOK,
+                    "Обновлена книга: '" + oldTitle + "' -> '" + newData.getTitle() + "'"
+            );
+            return true;
         }
         return false;
     }
@@ -61,7 +98,7 @@ public class Library {
             book.setAvailable(false);
             operationLog.addEntry(
                     OperationLog.OperationType.BORROW,
-                    "Выдана книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
+                    "Выдана книга: " + book.getTitle()
             );
             return true;
         }
@@ -74,7 +111,7 @@ public class Library {
             book.setAvailable(true);
             operationLog.addEntry(
                     OperationLog.OperationType.RETURN,
-                    "Возвращена книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
+                    "Возвращена книга: " + book.getTitle()
             );
             return true;
         }
@@ -95,13 +132,11 @@ public class Library {
         operationLog.printLog();
     }
 
-    // Метод: Получение статистики
     public String getStatistics() {
         int totalBooks = books.size();
         int availableBooks = getAvailableBooks().size();
         int borrowedBooks = totalBooks - availableBooks;
         
-        // Расчет процентов
         double availablePercentage = totalBooks > 0 ? 
             (double) availableBooks / totalBooks * 100 : 0;
         double borrowedPercentage = totalBooks > 0 ? 
@@ -117,12 +152,7 @@ public class Library {
         );
     }
 
-    // Дополнительный метод для вывода статистики
-    public void printStatistics() {
-        System.out.println(getStatistics());
-    }
-
-    // Геттер для получения всех книг
+    // Геттер для всех книг
     public List<Book> getBooks() {
         return new ArrayList<>(books);
     }
@@ -177,9 +207,9 @@ public class Library {
             }
         }
 
-        // Обновленный enum с добавлением типа REMOVE_BOOK
+        // Enum с добавлением UPDATE_BOOK
         public enum OperationType {
-            ADD_BOOK, BORROW, RETURN, REMOVE_BOOK
+            ADD_BOOK, BORROW, RETURN, REMOVE_BOOK, UPDATE_BOOK
         }
     }
 }
