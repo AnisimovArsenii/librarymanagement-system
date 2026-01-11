@@ -1,3 +1,4 @@
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,10 @@ public class Library {
 
     public void addBook(Book book) {
         books.add(book);
+        operationLog.addEntry(
+                OperationLog.OperationType.ADD_BOOK,
+                "Добавлена книга: " + book.getTitle()
+        );
     }
 
     public Book findBookById(int id) {
@@ -38,6 +43,10 @@ public class Library {
         Book book = findBookById(id);
         if (book != null && book.isAvailable()) {
             book.setAvailable(false);
+            operationLog.addEntry(
+                    OperationLog.OperationType.BORROW,
+                    "Выдана книга: " + book.getTitle()
+            );
             return true;
         }
         return false;
@@ -47,6 +56,10 @@ public class Library {
         Book book = findBookById(id);
         if (book != null && !book.isAvailable()) {
             book.setAvailable(true);
+            operationLog.addEntry(
+                    OperationLog.OperationType.RETURN,
+                    "Возвращена книга: " + book.getTitle()
+            );
             return true;
         }
         return false;
@@ -66,7 +79,58 @@ public class Library {
         operationLog.printLog();
     }
 
-    // Заглушка под вложенный класс (реализуется во 2 коммите)
+    // ===== ВЛОЖЕННЫЙ СТАТИЧЕСКИЙ КЛАСС =====
     public static class OperationLog {
+
+        private List<LogEntry> entries = new ArrayList<>();
+
+        public void addEntry(OperationType type, String description) {
+            entries.add(new LogEntry(type, description));
+        }
+
+        public List<LogEntry> getEntries() {
+            return entries;
+        }
+
+        public void printLog() {
+            System.out.println("=== Журнал операций ===");
+            for (LogEntry entry : entries) {
+                System.out.println(entry);
+            }
+        }
+
+        // Внутренний класс
+        public class LogEntry {
+            private OperationType type;
+            private LocalDateTime timestamp;
+            private String description;
+
+            public LogEntry(OperationType type, String description) {
+                this.type = type;
+                this.timestamp = LocalDateTime.now();
+                this.description = description;
+            }
+
+            public OperationType getType() {
+                return type;
+            }
+
+            public LocalDateTime getTimestamp() {
+                return timestamp;
+            }
+
+            public String getDescription() {
+                return description;
+            }
+
+            @Override
+            public String toString() {
+                return "[" + timestamp + "] " + type + " — " + description;
+            }
+        }
+
+        public enum OperationType {
+            ADD_BOOK, BORROW, RETURN
+        }
     }
 }
