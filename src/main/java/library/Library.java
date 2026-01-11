@@ -16,8 +16,24 @@ public class Library {
         books.add(book);
         operationLog.addEntry(
                 OperationLog.OperationType.ADD_BOOK,
-                "Добавлена книга: " + book.getTitle()
+                "Добавлена книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
         );
+    }
+
+    // Новый метод: Удаление книги по ID
+    public boolean removeBook(int id) {
+        Book bookToRemove = findBookById(id);
+        if (bookToRemove != null) {
+            boolean removed = books.remove(bookToRemove);
+            if (removed) {
+                operationLog.addEntry(
+                        OperationLog.OperationType.REMOVE_BOOK,
+                        "Удалена книга: " + bookToRemove.getTitle() + " (ID: " + bookToRemove.getId() + ")"
+                );
+                return true;
+            }
+        }
+        return false;
     }
 
     public Book findBookById(int id) {
@@ -45,7 +61,7 @@ public class Library {
             book.setAvailable(false);
             operationLog.addEntry(
                     OperationLog.OperationType.BORROW,
-                    "Выдана книга: " + book.getTitle()
+                    "Выдана книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
             );
             return true;
         }
@@ -58,7 +74,7 @@ public class Library {
             book.setAvailable(true);
             operationLog.addEntry(
                     OperationLog.OperationType.RETURN,
-                    "Возвращена книга: " + book.getTitle()
+                    "Возвращена книга: " + book.getTitle() + " (ID: " + book.getId() + ")"
             );
             return true;
         }
@@ -79,7 +95,7 @@ public class Library {
         operationLog.printLog();
     }
 
-    // Новый метод: Получение статистики
+    // Метод: Получение статистики
     public String getStatistics() {
         int totalBooks = books.size();
         int availableBooks = getAvailableBooks().size();
@@ -101,9 +117,14 @@ public class Library {
         );
     }
 
-    // Дополнительный метод для вывода статистики (необязательно)
+    // Дополнительный метод для вывода статистики
     public void printStatistics() {
         System.out.println(getStatistics());
+    }
+
+    // Геттер для получения всех книг
+    public List<Book> getBooks() {
+        return new ArrayList<>(books);
     }
 
     // ===== ВЛОЖЕННЫЙ СТАТИЧЕСКИЙ КЛАСС =====
@@ -156,8 +177,9 @@ public class Library {
             }
         }
 
+        // Обновленный enum с добавлением типа REMOVE_BOOK
         public enum OperationType {
-            ADD_BOOK, BORROW, RETURN
+            ADD_BOOK, BORROW, RETURN, REMOVE_BOOK
         }
     }
 }
